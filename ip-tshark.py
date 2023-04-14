@@ -20,7 +20,7 @@ def field_parse(path):
     # VPN_ADDRESS = "'ip.addr==223.166.157.73 or ip.addr==120.241.126.212'"
     for file in filelist:
         if "pcap" in file:
-            command0 = "tshark -r " + path + file + "  -T fields -e frame.number -e frame.time_relative -e ip.proto -e ip.src -e ip.dst -e tcp.srcport -e tcp.dstport -e udp.srcport -e udp.dstport -e ip.len -e ip.hdr_len -e tcp.flags -e tcp.hdr_len -e tls.record.version -e ip.flags.mf -E header=n -E separator=, -E quote=n -E occurrence=f > ./fields/pre_fields/" + str(
+            command0 = "tshark -r " + path + file + "  -T fields -e frame.number -e frame.time_relative -e ip.proto -e ip.src -e ip.dst -e tcp.srcport -e tcp.dstport -e udp.srcport -e udp.dstport -e ip.len -e ip.hdr_len -e tcp.flags -e tcp.hdr_len -e tls.record.version -e ip.flags.mf -e tcp.ack -e tls.record.content_type -E header=n -E separator=, -E quote=n -E occurrence=f > ./fields/pre_fields/" + str(
                 i) + ".csv 2>&1"
 
             command1 = "tshark -r " + path + file + "  -T fields -e frame.number -e frame.time_relative -e ip.proto -e ip.src -e ip.dst -e tcp.srcport -e tcp.dstport -e udp.srcport -e udp.dstport -e tls.handshake.certificate -E header=n -E separator=, -E quote=n -E occurrence=a > ./fields/certificates/" + str(
@@ -80,10 +80,10 @@ def multi_ocurrence_merge(j):
         d1 = l1[:-1].split(',')
         d2 = l2[:-1].split(',')[9:]
         d3 = l3[:-1].split(',')[9:]
-        print(d1)
-        print(d2)
-        print(d3)
-        print(','.join(d1 + [';'.join(d2)] + [';'.join(d3)]))
+        # print(d1)
+        # print(d2)
+        # print(d3)
+        # print(','.join(d1 + [';'.join(d2)] + [';'.join(d3)]))
         five_tuple.write(','.join(d1 + [';'.join(d2)] + [';'.join(d3)]) + "\n")
 
 
