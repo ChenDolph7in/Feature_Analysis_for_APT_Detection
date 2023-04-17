@@ -11,10 +11,8 @@ pd.set_option('display.max_columns', 8)
 def is_nan(input):
     return input != input
 
-
 def cal_similarity(str1, str2):
-    return difflib.SequenceMatcher(None, str1, str2).quick_ratio()
-
+    return difflib.SequenceMatcher(None, str1, str2).ratio()
 
 def parse_tls_version(tls_version):
     version_list = tls_version.split(";")
@@ -49,9 +47,18 @@ def self_cert_detect(cert_list):
         #         subject[key] = [item[1].decode("utf-8")]
         #     else:
         #         subject[key].append(item[1].decode("utf-8"))
-        issue = certIssue.commonName
-        subject = certSubject.commonName
+        issue = []
+        subject = []
+        for item in certIssue.get_components():
+            issue.append(item[1].decode("utf-8"))
+        for item in certSubject.get_components():
+            subject.append(item[1].decode("utf-8"))
+
+        # issue = certIssue.commonName
+        # subject = certSubject.commonName
+
         similarity = cal_similarity(issue, subject)
+
         if similarity > 0.9:
             return 1
         else:
@@ -88,6 +95,7 @@ def parse_x509_cert(cert_list, sni_list):
         if len(san_dns_list) > 0:
             san_dns_total_list += san_dns_list
         if len(san_dns_list) != 0 and len(sni_list) != 0 and consistent_flag == 0:
+
             if cal_similarity(san_dns_list, sni_list) > 0.9:
                 consistent_flag = 1
             # for i in san_dns_list:
@@ -159,9 +167,13 @@ def parse_features():
         fw_byt_s = line[15]
         bw_byt_s = line[38]
         fl_byt_s = line[61]
-        fw_pkt_s = line[13] / line[14]
-        bw_pkt_s = line[36] / line[37]
-        fl_pkt_s = line[59] / line[60]
+
+        fw_duration = line[14]
+        bw_duration = line[37]
+        fl_duration = line[60]
+        fw_pkt_s = line[13] / fw_duration if not is_nan(fw_duration) and fw_duration > 0.1 else 0
+        bw_pkt_s = line[36] / bw_duration if not is_nan(bw_duration) and bw_duration > 0.1 else 0
+        fl_pkt_s = line[59] / fl_duration if not is_nan(fl_duration) and fl_duration > 0.1 else 0
 
         fw_iat_min = line[30]
         fw_iat_max = line[31]
@@ -208,10 +220,40 @@ def parse_features():
         fl_ece_cnt = line[104]
         fl_cwr_cnt = line[105]
 
+        fw_10_p = line[21]
+        fw_20_p = line[22]
+        fw_30_p = line[23]
+        fw_40_p = line[24]
+        fw_50_p = line[25]
+        fw_60_p = line[26]
+        fw_70_p = line[27]
+        fw_80_p = line[28]
+        fw_90_p = line[29]
+
+        bw_10_p = line[44]
+        bw_20_p = line[45]
+        bw_30_p = line[46]
+        bw_40_p = line[47]
+        bw_50_p = line[48]
+        bw_60_p = line[49]
+        bw_70_p = line[50]
+        bw_80_p = line[51]
+        bw_90_p = line[52]
+
+        fl_10_p = line[67]
+        fl_20_p = line[68]
+        fl_30_p = line[69]
+        fl_40_p = line[70]
+        fl_50_p = line[71]
+        fl_60_p = line[72]
+        fl_70_p = line[73]
+        fl_80_p = line[74]
+        fl_90_p = line[75]
+
         fw_hdr_len = line[10]
         bw_hdr_len = line[11]
 
-        down_up_ratio = line[35] / line[12]
+        down_up_ratio = line[35] / line[12] if not is_nan(line[12]) else 0
         # pkt_size_avg =
 
         fw_seg_avg = np.mean(line[108].split(";")) if not is_nan(line[108]) else 0
@@ -283,21 +325,21 @@ def parse_features():
         dst_host_srv_rerror_list = same_host_srv_list[np.where(same_host_srv_list[:, 107] == 'REJ')]
         dst_host_srv_rerror_rate = len(dst_host_srv_rerror_list) / dst_host_srv_count if dst_host_srv_count > 0 else 0
 
-        new_line = [ip_src, port_src, ip_dst, port_dst, proto, label, SSL_flag, TLS_version, sni_flag,
+        new_line = [ip_src, port_src, ip_dst, port_dst, proto, label, timestamp, SSL_flag, TLS_version, sni_flag,
                     cert_chain_len, self_cert_flag,
                     valid_avg, valid_std, expire_flag, age_avg, san_dns_num_avg, consistent_flag, cert_num,
                     fw_pkt_l_max, fw_pkt_l_min, fw_pkt_l_avg, fw_pkt_l_var, fw_pkt_l_std, fw_byt_s,
                     fw_pkt_s, fw_iat_min, fw_iat_max, fw_iat_avg, fw_iat_std, fw_iat_tot,
                     fw_fin_cnt, fw_syn_cnt, fw_rst_cnt, fw_psh_cnt, fw_ack_cnt, fw_urg_cnt, fw_ece_cnt,
-                    fw_cwr_cnt,
+                    fw_cwr_cnt, fw_10_p, fw_20_p, fw_30_p, fw_40_p, fw_50_p, fw_60_p, fw_70_p, fw_80_p, fw_90_p, fw_duration,
                     bw_pkt_l_max, bw_pkt_l_min, bw_pkt_l_avg, bw_pkt_l_var, bw_pkt_l_std, bw_byt_s,
                     bw_pkt_s, bw_iat_min, bw_iat_max, bw_iat_avg, bw_iat_std, bw_iat_tot,
                     bw_fin_cnt, bw_syn_cnt, bw_rst_cnt, bw_psh_cnt, bw_ack_cnt, bw_urg_cnt, bw_ece_cnt,
-                    bw_cwr_cnt,
+                    bw_cwr_cnt, bw_10_p, bw_20_p, bw_30_p, bw_40_p, bw_50_p, bw_60_p, bw_70_p, bw_80_p, bw_90_p, bw_duration,
                     fl_pkt_l_max, fl_pkt_l_min, fl_pkt_l_avg, fl_pkt_l_var, fl_pkt_l_std, fl_byt_s,
                     fl_pkt_s, fl_iat_min, fl_iat_max, fl_iat_avg, fl_iat_std, fl_iat_tot,
                     fl_fin_cnt, fl_syn_cnt, fl_rst_cnt, fl_psh_cnt, fl_ack_cnt, fl_urg_cnt, fl_ece_cnt,
-                    fl_cwr_cnt,
+                    fl_cwr_cnt, fl_10_p, fl_20_p, fl_30_p, fl_40_p, fl_50_p, fl_60_p, fl_70_p, fl_80_p, fl_90_p, fl_duration,
                     fw_hdr_len, bw_hdr_len, down_up_ratio, fw_seg_avg, bw_seg_avg, fl_seg_cnt, conn_state,
                     count, srv_count, serror_rate, srv_serror_rate, rerror_rate, srv_rerror_rate, same_srv_rate,
                     diff_srv_rate, srv_diff_host_rate, srv_same_host_rate,
@@ -306,21 +348,25 @@ def parse_features():
                     dst_host_serror_rate, dst_host_srv_serror_rate, dst_host_rerror_rate, dst_host_srv_rerror_rate
                     ]
         feature_list.append(new_line)
-    column = ['ip.src', 'port.src', 'ip.dst', 'port.dst', 'proto', 'label', 'ssl_flag', 'tls_version', 'sni_flag',
+    column = ['ip.src', 'port.src', 'ip.dst', 'port.dst', 'proto', 'label', 'timestamp', 'ssl_flag', 'tls_version',
+              'sni_flag',
               'cert_chain_len', 'self_cert_flag',
               'valid_avg', 'valid_std', 'expire_flag', 'age_avg', 'san_dns_num_avg', 'consistent_flag', 'cert_num',
               'fw_pkt_l_max', 'fw_pkt_l_min ', 'fw_pkt_l_avg', 'fw_pkt_l_var', 'fw_pkt_l_std', 'fw_byt_s',
               'fw_pkt_s', 'fw_iat_min', 'fw_iat_max', 'fw_iat_avg', 'fw_iat_std', 'fw_iat_tot',
               'fw_fin_cnt', 'fw_syn_cnt', 'fw_rst_cnt', 'fw_psh_cnt', 'fw_ack_cnt', 'fw_urg_cnt', 'fw_ece_cnt',
-              'fw_cwr_cnt',
+              'fw_cwr_cnt', 'fw_10_p', 'fw_20_p', 'fw_30_p', 'fw_40_p', 'fw_50_p', 'fw_60_p', 'fw_70_p', 'fw_80_p',
+              'fw_90_p', 'fw_duration',
               'bw_pkt_l_max', 'bw_pkt_l_min ', 'bw_pkt_l_avg', 'bw_pkt_l_var', 'bw_pkt_l_std', 'bw_byt_s',
               'bw_pkt_s', 'bw_iat_min', 'bw_iat_max', 'bw_iat_avg', 'bw_iat_std', 'bw_iat_tot',
               'bw_fin_cnt', 'bw_syn_cnt', 'bw_rst_cnt', 'bw_psh_cnt', 'bw_ack_cnt', 'bw_urg_cnt', 'bw_ece_cnt',
-              'bw_cwr_cnt',
+              'bw_cwr_cnt', 'bw_10_p', 'bw_20_p', 'bw_30_p', 'bw_40_p', 'bw_50_p', 'bw_60_p', 'bw_70_p', 'bw_80_p',
+              'bw_90_p', 'bw_duration',
               'fl_pkt_l_max', 'fl_pkt_l_min ', 'fl_pkt_l_avg', 'fl_pkt_l_var', 'fl_pkt_l_std', 'fl_byt_s',
               'fl_pkt_s', 'fl_iat_min', 'fl_iat_max', 'fl_iat_avg', 'fl_iat_std', 'fl_iat_tot',
               'fl_fin_cnt', 'fl_syn_cnt', 'fl_rst_cnt', 'fl_psh_cnt', 'fl_ack_cnt', 'fl_urg_cnt', 'fl_ece_cnt',
-              'fl_cwr_cnt',
+              'fl_cwr_cnt', 'fl_10_p', 'fl_20_p', 'fl_30_p', 'fl_40_p', 'fl_50_p', 'fl_60_p', 'fl_70_p', 'fl_80_p',
+              'fl_90_p', 'fl_duration',
               'fw_hdr_len', 'bw_hdr_len', 'down_up_ratio', 'fw_seg_avg', 'bw_seg_avg', 'fl_seg_cnt', 'conn_state',
               'count', 'srv_count', 'serror_rate', 'srv_serror_rate', 'rerror_rate', 'srv_rerror_rate', 'same_srv_rate',
               'diff_srv_rate', 'srv_diff_host_rate', 'srv_same_host_rate',
