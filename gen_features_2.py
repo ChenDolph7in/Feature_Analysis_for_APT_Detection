@@ -348,7 +348,7 @@ def parse_features():
                     dst_host_serror_rate, dst_host_srv_serror_rate, dst_host_rerror_rate, dst_host_srv_rerror_rate
                     ]
         feature_list.append(new_line)
-    column = ['ip.src', 'port.src', 'ip.dst', 'port.dst', 'proto', 'label', 'timestamp', 'ssl_flag', 'tls_version',
+    column = ['ip.src', 'port.src', 'ip.dst', 'port.dst', 'proto', 'tag', 'timestamp', 'ssl_flag', 'tls_version',
               'sni_flag',
               'cert_chain_len', 'self_cert_flag',
               'valid_avg', 'valid_std', 'expire_flag', 'age_avg', 'san_dns_num_avg', 'consistent_flag', 'cert_num',

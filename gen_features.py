@@ -483,7 +483,7 @@ def read_batch():
             for i in f_list:
                 f_list_all.append(i)
             f_list = []
-    name = ['file', 'lable', 'proto', 'timestamp', 'c_hdr_len', 's_hdr_len',
+    name = ['file', 'tag', 'proto', 'timestamp', 'c_hdr_len', 's_hdr_len',
             'c_sum', 'c_pkts_num', 'c_duration', 'c_speed', 'c_max', 'c_min', 'c_mean',
             'c_var', 'c_std', 'c_10_p', 'c_20_p', 'c_30_p', 'c_40_p', 'c_50_p', 'c_60_p', 'c_70_p', 'c_80_p', 'c_90_p',
             'c_iat_min', 'c_iat_max', 'c_iat_avg', 'c_iat_std', 'c_iat_total',
