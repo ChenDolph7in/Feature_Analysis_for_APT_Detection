@@ -9,7 +9,7 @@ pd.set_option('display.max_columns', 8)
 
 
 def is_nan(input):
-    return input != input
+    return input != input or input == 0
 
 def cal_similarity(str1, str2):
     return difflib.SequenceMatcher(None, str1, str2).ratio()
