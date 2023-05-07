@@ -36,7 +36,7 @@ def parse_tcp(flags_str):
     if len(num) < 8:
         for i in range(8 - len(num)):
             flags.append("0")
-    return flags
+    return flags[0:8]
 
 
 def gen_conn_state(flag_list, ack_list):
@@ -155,10 +155,10 @@ def gen_flow(filename):
             proto = line[2]
             ip_src = line[3]
             ip_dst = line[4]
-            ip_len = int(line[9])
+            ip_len = int(line[9]) if len(line[9])>0 else 0
 
             # new
-            ip_hdr_len = int(line[10])
+            ip_hdr_len = int(line[10]) if len(line[10])>0 else 0
             tcp_flags = line[11]
             tcp_hdr_len = line[12]
             tls_version = line[13]
@@ -243,50 +243,50 @@ def gen_flow(filename):
                 if certs != '': f_dic['tcp'][key]['certs'].append(certs)
                 if sni != '' and sni not in f_dic['tcp'][key]['sni']: f_dic['tcp'][key]['sni'].append(sni)
                 # new end
-            else:
-                if int(line[7]) > int(line[8]):
-                    port_client = line[7]
-                    port_server = line[8]
-                    direction = '->'
-                else:
-                    port_client = line[8]
-                    port_server = line[7]
-                    direction = '<-'
-                key = port_client + '<->' + port_server
-                if key not in f_dic['more_seg_flag'].keys():
-                    if more_seg_flag == '1':
-                        f_dic['more_seg_flag'][key] = {}
-                        f_dic['more_seg_flag'][key]['->'] = []
-                        f_dic['more_seg_flag'][key]['<-'] = []
-                        f_dic['more_seg_flag'][key][direction].append(ip_len)
-                else:
-                    if more_seg_flag == '1':
-                        f_dic['more_seg_flag'][key][direction].append(ip_len)
-
-                if key not in f_dic['ip_hdr_len'].keys():
-                    f_dic['ip_hdr_len'][key] = {}
-                    f_dic['ip_hdr_len'][key]['->'] = 0
-                    f_dic['ip_hdr_len'][key]['<-'] = 0
-                    f_dic['ip_hdr_len'][key][direction] += ip_hdr_len
-                else:
-                    f_dic['ip_hdr_len'][key][direction] += ip_hdr_len
-
-                if key not in f_dic['udp'].keys():
-                    f_dic['udp'][key] = {}
-                    f_dic['udp'][key]['->'] = []
-                    f_dic['udp'][key]['<-'] = []
-                    f_dic['udp'][key]['<->'] = []
-                    f_dic['udp'][key][direction].append(ip_len)
-                    f_dic['udp'][key]['time'] = {}
-                    f_dic['udp'][key]['time'][direction] = [timestamp]
-                    f_dic['udp'][key]['time']['<->'] = [timestamp]
-                else:
-                    if direction not in f_dic['udp'][key]['time'].keys():
-                        f_dic['udp'][key]['time'][direction] = [timestamp]
-                    f_dic['udp'][key][direction].append(ip_len)
-                    f_dic['udp'][key]['time'][direction].append(timestamp)
-                f_dic['udp'][key]['<->'].append(ip_len)
-                f_dic['udp'][key]['time']['<->'].append(timestamp)
+            # else:
+            #     if int(line[7]) > int(line[8]):
+            #         port_client = line[7]
+            #         port_server = line[8]
+            #         direction = '->'
+            #     else:
+            #         port_client = line[8]
+            #         port_server = line[7]
+            #         direction = '<-'
+            #     key = port_client + '<->' + port_server
+            #     if key not in f_dic['more_seg_flag'].keys():
+            #         if more_seg_flag == '1':
+            #             f_dic['more_seg_flag'][key] = {}
+            #             f_dic['more_seg_flag'][key]['->'] = []
+            #             f_dic['more_seg_flag'][key]['<-'] = []
+            #             f_dic['more_seg_flag'][key][direction].append(ip_len)
+            #     else:
+            #         if more_seg_flag == '1':
+            #             f_dic['more_seg_flag'][key][direction].append(ip_len)
+            #
+            #     if key not in f_dic['ip_hdr_len'].keys():
+            #         f_dic['ip_hdr_len'][key] = {}
+            #         f_dic['ip_hdr_len'][key]['->'] = 0
+            #         f_dic['ip_hdr_len'][key]['<-'] = 0
+            #         f_dic['ip_hdr_len'][key][direction] += ip_hdr_len
+            #     else:
+            #         f_dic['ip_hdr_len'][key][direction] += ip_hdr_len
+            #
+            #     if key not in f_dic['udp'].keys():
+            #         f_dic['udp'][key] = {}
+            #         f_dic['udp'][key]['->'] = []
+            #         f_dic['udp'][key]['<-'] = []
+            #         f_dic['udp'][key]['<->'] = []
+            #         f_dic['udp'][key][direction].append(ip_len)
+            #         f_dic['udp'][key]['time'] = {}
+            #         f_dic['udp'][key]['time'][direction] = [timestamp]
+            #         f_dic['udp'][key]['time']['<->'] = [timestamp]
+            #     else:
+            #         if direction not in f_dic['udp'][key]['time'].keys():
+            #             f_dic['udp'][key]['time'][direction] = [timestamp]
+            #         f_dic['udp'][key][direction].append(ip_len)
+            #         f_dic['udp'][key]['time'][direction].append(timestamp)
+            #     f_dic['udp'][key]['<->'].append(ip_len)
+            #     f_dic['udp'][key]['time']['<->'].append(timestamp)
         return f_dic
 
 
@@ -366,21 +366,34 @@ def get_sample_features(file, f_dic):
         records.append(";".join(f_dic['tcp'][key]['tcp_flag']))
 
         flags_list = []
-        for i in f_dic['tcp'][key]['tcp_flag']:
-            line = i.split(":")
-            flags = parse_tcp(line[1])
-            flags_list.append([line[0]] + flags)
-        t_flags_list = np.array(flags_list)
-        c_flags_list = t_flags_list[np.where(t_flags_list[:, 0] == "->")]
-        s_flags_list = t_flags_list[np.where(t_flags_list[:, 0] == "<-")]
-        c_FIN_cnt = np.sum(c_flags_list[:, 1] == '1')
-        c_SYN_cnt = np.sum(c_flags_list[:, 2] == '1')
-        c_RST_cnt = np.sum(c_flags_list[:, 3] == '1')
-        c_PSH_cnt = np.sum(c_flags_list[:, 4] == '1')
-        c_ACK_cnt = np.sum(c_flags_list[:, 5] == '1')
-        c_URG_cnt = np.sum(c_flags_list[:, 6] == '1')
-        c_ECE_cnt = np.sum(c_flags_list[:, 7] == '1')
-        c_CWR_cnt = np.sum(c_flags_list[:, 8] == '1')
+        c_FIN_cnt = 0
+        c_SYN_cnt = 0
+        c_RST_cnt = 0
+        c_PSH_cnt = 0
+        c_ACK_cnt = 0
+        c_URG_cnt = 0
+        c_ECE_cnt = 0
+        c_CWR_cnt = 0
+        try:
+
+            for i in f_dic['tcp'][key]['tcp_flag']:
+                line = i.split(":")
+                flags = parse_tcp(line[1])
+                flags_list.append([line[0]] + flags)
+            t_flags_list = np.array(flags_list)
+            c_flags_list = t_flags_list[np.where(t_flags_list[:, 0] == "->")]
+            s_flags_list = t_flags_list[np.where(t_flags_list[:, 0] == "<-")]
+            c_FIN_cnt = np.sum(c_flags_list[:, 1] == '1')
+            c_SYN_cnt = np.sum(c_flags_list[:, 2] == '1')
+            c_RST_cnt = np.sum(c_flags_list[:, 3] == '1')
+            c_PSH_cnt = np.sum(c_flags_list[:, 4] == '1')
+            c_ACK_cnt = np.sum(c_flags_list[:, 5] == '1')
+            c_URG_cnt = np.sum(c_flags_list[:, 6] == '1')
+            c_ECE_cnt = np.sum(c_flags_list[:, 7] == '1')
+            c_CWR_cnt = np.sum(c_flags_list[:, 8] == '1')
+        except Exception as e:
+            print(flags_list)
+            print(e)
         records.append(c_FIN_cnt)
         records.append(c_SYN_cnt)
         records.append(c_RST_cnt)
