@@ -262,70 +262,70 @@ def parse_features():
         bw_seg_cnt = len(line[109].split(";")) if not is_nan(line[109]) else 0
         fl_seg_cnt = fw_seg_cnt + bw_seg_cnt
         conn_state = line[107]
-        timestamp = line[9]
+        # timestamp = line[9]
+        #
+        # # 基于时间的网络流量统计特征
+        # last_2_s_list = data[np.where((data[:, 9] <= timestamp) & (data[:, 9] > timestamp - 2))]
+        #
+        # last_2_same_host_list = last_2_s_list[np.where(last_2_s_list[:, 4] == ip_dst)]
+        # count = len(last_2_same_host_list)
+        # serror_list = last_2_same_host_list[np.where(
+        #     (last_2_same_host_list[:, 107] == 'S0') & (last_2_same_host_list[:, 107] == 'S1') & (
+        #             last_2_same_host_list[:, 107] == 'S2') & (
+        #             last_2_same_host_list[:, 107] == 'S3'))]
+        # serror_rate = len(serror_list) / count if count > 0 else 0
+        # rerror_list = last_2_same_host_list[np.where(last_2_same_host_list[:, 107] == 'REJ')]
+        # rerror_rate = len(rerror_list) / count if count > 0 else 0
+        # last_2_host_srv_list = last_2_same_host_list[np.where(last_2_same_host_list[:, 8] == proto)]
+        # host_srv_cnt = len(last_2_host_srv_list)
+        # same_srv_rate = host_srv_cnt / count if count > 0 else 0
+        # diff_srv_rate = 1 - same_srv_rate
+        #
+        # last_2_same_src_list = last_2_s_list[np.where(last_2_s_list[:, 8] == proto)]
+        # srv_count = len(last_2_same_src_list)
+        # srv_serror_list = last_2_s_list[np.where(
+        #     (last_2_same_src_list[:, 107] == 'S0') & (last_2_same_src_list[:, 107] == 'S1') & (
+        #             last_2_same_src_list[:, 107] == 'S2') & (
+        #             last_2_same_src_list[:, 107] == 'S3'))]
+        # srv_rerror_list = last_2_same_src_list[np.where(last_2_same_src_list[:, 107] == 'REJ')]
+        # srv_serror_rate = len(srv_serror_list) / srv_count if srv_count > 0 else 0
+        # srv_rerror_rate = len(srv_rerror_list) / srv_count if srv_count > 0 else 0
+        # srv_same_host_rate = host_srv_cnt / srv_count if srv_count > 0 else 0
+        # srv_diff_host_rate = 1 - srv_same_host_rate
+        #
+        # # 基于主机的网络流量统计特征
+        # first = i - 100 if (i - 100) > 0 else 1
+        # last_100_list = data[0:first, :]
+        # last_100_cnt = len(last_100_list)
+        # same_host_list = last_100_list[np.where(last_100_list[:, 4] == ip_dst)]
+        # same_host_srv_list = last_100_list[np.where((last_100_list[:, 4] == ip_dst) & (last_100_list[:, 8] == proto))]
+        # dst_host_count = len(same_host_list)
+        # dst_host_srv_count = len(same_host_srv_list)
+        # dst_host_same_srv_rate = dst_host_count / last_100_cnt if last_100_cnt > 0 else 0
+        # dst_host_diff_srv_rate = 1 - dst_host_same_srv_rate
+        # same_host_sport_list = last_100_list[
+        #     np.where((last_100_list[:, 4] == ip_dst) & (last_100_list[:, 3] == port_src))]
+        # dst_host_same_src_port_rate = len(same_host_sport_list) / last_100_cnt if last_100_cnt > 0 else 0
+        # diff_sip_list = same_host_srv_list[np.where(same_host_srv_list[:, 2] != ip_src)]
+        # dst_host_srv_diff_host_rate = len(diff_sip_list) / dst_host_srv_count if dst_host_srv_count > 0 else 0
+        #
+        # dst_host_serror_list = same_host_list[np.where(
+        #     (same_host_list[:, 107] == 'S0') & (same_host_list[:, 107] == 'S1') & (
+        #             same_host_list[:, 107] == 'S2') & (
+        #             same_host_list[:, 107] == 'S3'))]
+        # dst_host_serror_rate = len(dst_host_serror_list) / dst_host_count if dst_host_count > 0 else 0
+        # dst_host_rerror_list = same_host_list[np.where(same_host_list[:, 107] == 'REJ')]
+        # dst_host_rerror_rate = len(dst_host_rerror_list) / dst_host_count if dst_host_count > 0 else 0
+        #
+        # dst_host_srv_serror_list = same_host_srv_list[np.where(
+        #     (same_host_srv_list[:, 107] == 'S0') & (same_host_srv_list[:, 107] == 'S1') & (
+        #             same_host_srv_list[:, 107] == 'S2') & (
+        #             same_host_srv_list[:, 107] == 'S3'))]
+        # dst_host_srv_serror_rate = len(dst_host_srv_serror_list) / dst_host_srv_count if dst_host_srv_count > 0 else 0
+        # dst_host_srv_rerror_list = same_host_srv_list[np.where(same_host_srv_list[:, 107] == 'REJ')]
+        # dst_host_srv_rerror_rate = len(dst_host_srv_rerror_list) / dst_host_srv_count if dst_host_srv_count > 0 else 0
 
-        # 基于时间的网络流量统计特征
-        last_2_s_list = data[np.where((data[:, 9] <= timestamp) & (data[:, 9] > timestamp - 2))]
-
-        last_2_same_host_list = last_2_s_list[np.where(last_2_s_list[:, 4] == ip_dst)]
-        count = len(last_2_same_host_list)
-        serror_list = last_2_same_host_list[np.where(
-            (last_2_same_host_list[:, 107] == 'S0') & (last_2_same_host_list[:, 107] == 'S1') & (
-                    last_2_same_host_list[:, 107] == 'S2') & (
-                    last_2_same_host_list[:, 107] == 'S3'))]
-        serror_rate = len(serror_list) / count if count > 0 else 0
-        rerror_list = last_2_same_host_list[np.where(last_2_same_host_list[:, 107] == 'REJ')]
-        rerror_rate = len(rerror_list) / count if count > 0 else 0
-        last_2_host_srv_list = last_2_same_host_list[np.where(last_2_same_host_list[:, 8] == proto)]
-        host_srv_cnt = len(last_2_host_srv_list)
-        same_srv_rate = host_srv_cnt / count if count > 0 else 0
-        diff_srv_rate = 1 - same_srv_rate
-
-        last_2_same_src_list = last_2_s_list[np.where(last_2_s_list[:, 8] == proto)]
-        srv_count = len(last_2_same_src_list)
-        srv_serror_list = last_2_s_list[np.where(
-            (last_2_same_src_list[:, 107] == 'S0') & (last_2_same_src_list[:, 107] == 'S1') & (
-                    last_2_same_src_list[:, 107] == 'S2') & (
-                    last_2_same_src_list[:, 107] == 'S3'))]
-        srv_rerror_list = last_2_same_src_list[np.where(last_2_same_src_list[:, 107] == 'REJ')]
-        srv_serror_rate = len(srv_serror_list) / srv_count if srv_count > 0 else 0
-        srv_rerror_rate = len(srv_rerror_list) / srv_count if srv_count > 0 else 0
-        srv_same_host_rate = host_srv_cnt / srv_count if srv_count > 0 else 0
-        srv_diff_host_rate = 1 - srv_same_host_rate
-
-        # 基于主机的网络流量统计特征
-        first = i - 100 if (i - 100) > 0 else 1
-        last_100_list = data[0:first, :]
-        last_100_cnt = len(last_100_list)
-        same_host_list = last_100_list[np.where(last_100_list[:, 4] == ip_dst)]
-        same_host_srv_list = last_100_list[np.where((last_100_list[:, 4] == ip_dst) & (last_100_list[:, 8] == proto))]
-        dst_host_count = len(same_host_list)
-        dst_host_srv_count = len(same_host_srv_list)
-        dst_host_same_srv_rate = dst_host_count / last_100_cnt if last_100_cnt > 0 else 0
-        dst_host_diff_srv_rate = 1 - dst_host_same_srv_rate
-        same_host_sport_list = last_100_list[
-            np.where((last_100_list[:, 4] == ip_dst) & (last_100_list[:, 3] == port_src))]
-        dst_host_same_src_port_rate = len(same_host_sport_list) / last_100_cnt if last_100_cnt > 0 else 0
-        diff_sip_list = same_host_srv_list[np.where(same_host_srv_list[:, 2] != ip_src)]
-        dst_host_srv_diff_host_rate = len(diff_sip_list) / dst_host_srv_count if dst_host_srv_count > 0 else 0
-
-        dst_host_serror_list = same_host_list[np.where(
-            (same_host_list[:, 107] == 'S0') & (same_host_list[:, 107] == 'S1') & (
-                    same_host_list[:, 107] == 'S2') & (
-                    same_host_list[:, 107] == 'S3'))]
-        dst_host_serror_rate = len(dst_host_serror_list) / dst_host_count if dst_host_count > 0 else 0
-        dst_host_rerror_list = same_host_list[np.where(same_host_list[:, 107] == 'REJ')]
-        dst_host_rerror_rate = len(dst_host_rerror_list) / dst_host_count if dst_host_count > 0 else 0
-
-        dst_host_srv_serror_list = same_host_srv_list[np.where(
-            (same_host_srv_list[:, 107] == 'S0') & (same_host_srv_list[:, 107] == 'S1') & (
-                    same_host_srv_list[:, 107] == 'S2') & (
-                    same_host_srv_list[:, 107] == 'S3'))]
-        dst_host_srv_serror_rate = len(dst_host_srv_serror_list) / dst_host_srv_count if dst_host_srv_count > 0 else 0
-        dst_host_srv_rerror_list = same_host_srv_list[np.where(same_host_srv_list[:, 107] == 'REJ')]
-        dst_host_srv_rerror_rate = len(dst_host_srv_rerror_list) / dst_host_srv_count if dst_host_srv_count > 0 else 0
-
-        new_line = [ip_src, port_src, ip_dst, port_dst, proto, label, timestamp, SSL_flag, TLS_version, sni_flag,
+        new_line = [ip_src, port_src, ip_dst, port_dst, proto, SSL_flag, TLS_version, sni_flag,
                     cert_chain_len, self_cert_flag,
                     valid_avg, valid_std, expire_flag, age_avg, san_dns_num_avg, consistent_flag, cert_num,
                     fw_pkt_l_max, fw_pkt_l_min, fw_pkt_l_avg, fw_pkt_l_var, fw_pkt_l_std, fw_byt_s,
@@ -340,15 +340,16 @@ def parse_features():
                     fl_pkt_s, fl_iat_min, fl_iat_max, fl_iat_avg, fl_iat_std, fl_iat_tot,
                     fl_fin_cnt, fl_syn_cnt, fl_rst_cnt, fl_psh_cnt, fl_ack_cnt, fl_urg_cnt, fl_ece_cnt,
                     fl_cwr_cnt, fl_10_p, fl_20_p, fl_30_p, fl_40_p, fl_50_p, fl_60_p, fl_70_p, fl_80_p, fl_90_p, fl_duration,
-                    fw_hdr_len, bw_hdr_len, down_up_ratio, fw_seg_avg, bw_seg_avg, fl_seg_cnt, conn_state,
-                    count, srv_count, serror_rate, srv_serror_rate, rerror_rate, srv_rerror_rate, same_srv_rate,
-                    diff_srv_rate, srv_diff_host_rate, srv_same_host_rate,
-                    dst_host_count, dst_host_srv_count, dst_host_same_srv_rate, dst_host_diff_srv_rate,
-                    dst_host_same_src_port_rate, dst_host_srv_diff_host_rate,
-                    dst_host_serror_rate, dst_host_srv_serror_rate, dst_host_rerror_rate, dst_host_srv_rerror_rate
-                    ]
+                    fw_hdr_len, bw_hdr_len, down_up_ratio, fw_seg_avg, bw_seg_avg, fw_seg_cnt, bw_seg_cnt, fl_seg_cnt, conn_state]
+            # ,
+            #         count, srv_count, serror_rate, srv_serror_rate, rerror_rate, srv_rerror_rate, same_srv_rate,
+            #         diff_srv_rate, srv_diff_host_rate, srv_same_host_rate,
+            #         dst_host_count, dst_host_srv_count, dst_host_same_srv_rate, dst_host_diff_srv_rate,
+            #         dst_host_same_src_port_rate, dst_host_srv_diff_host_rate,
+            #         dst_host_serror_rate, dst_host_srv_serror_rate, dst_host_rerror_rate, dst_host_srv_rerror_rate
+            #         ]
         feature_list.append(new_line)
-    column = ['ip.src', 'port.src', 'ip.dst', 'port.dst', 'proto', 'tag', 'timestamp', 'ssl_flag', 'tls_version',
+    column = ['ip.src', 'port.src', 'ip.dst', 'port.dst', 'proto', 'ssl_flag', 'tls_version',
               'sni_flag',
               'cert_chain_len', 'self_cert_flag',
               'valid_avg', 'valid_std', 'expire_flag', 'age_avg', 'san_dns_num_avg', 'consistent_flag', 'cert_num',
@@ -367,13 +368,14 @@ def parse_features():
               'fl_fin_cnt', 'fl_syn_cnt', 'fl_rst_cnt', 'fl_psh_cnt', 'fl_ack_cnt', 'fl_urg_cnt', 'fl_ece_cnt',
               'fl_cwr_cnt', 'fl_10_p', 'fl_20_p', 'fl_30_p', 'fl_40_p', 'fl_50_p', 'fl_60_p', 'fl_70_p', 'fl_80_p',
               'fl_90_p', 'fl_duration',
-              'fw_hdr_len', 'bw_hdr_len', 'down_up_ratio', 'fw_seg_avg', 'bw_seg_avg', 'fl_seg_cnt', 'conn_state',
-              'count', 'srv_count', 'serror_rate', 'srv_serror_rate', 'rerror_rate', 'srv_rerror_rate', 'same_srv_rate',
-              'diff_srv_rate', 'srv_diff_host_rate', 'srv_same_host_rate',
-              'dst_host_count', 'dst_host_srv_count', 'dst_host_same_srv_rate',
-              'dst_host_diff_srv_rate', 'dst_host_same_src_port_rate', 'dst_host_srv_diff_host_rate',
-              'dst_host_serror_rate', 'dst_host_srv_serror_rate', 'dst_host_rerror_rate', 'dst_host_srv_rerror_rate'
-              ]
+              'fw_hdr_len', 'bw_hdr_len', 'down_up_ratio', 'fw_seg_avg', 'bw_seg_avg', 'fw_seg_cnt', 'bw_seg_cnt', 'fl_seg_cnt', 'conn_state']
+        # ,
+        #       'count', 'srv_count', 'serror_rate', 'srv_serror_rate', 'rerror_rate', 'srv_rerror_rate', 'same_srv_rate',
+        #       'diff_srv_rate', 'srv_diff_host_rate', 'srv_same_host_rate',
+        #       'dst_host_count', 'dst_host_srv_count', 'dst_host_same_srv_rate',
+        #       'dst_host_diff_srv_rate', 'dst_host_same_src_port_rate', 'dst_host_srv_diff_host_rate',
+        #       'dst_host_serror_rate', 'dst_host_srv_serror_rate', 'dst_host_rerror_rate', 'dst_host_srv_rerror_rate'
+        #       ]
     csvdata = pd.DataFrame(columns=column, data=feature_list)
     csvdata.to_csv("output_2.csv", encoding='utf-8')
 
